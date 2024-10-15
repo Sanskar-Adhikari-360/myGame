@@ -9,8 +9,8 @@ function love.load()
     food = love.graphics.newImage('sprites/pixil-frame-0.png')
     background = love.graphics.newImage('sprites/background.png')
     _G.player = {}
-    player.x = 10
-    player.y = 10
+    player.x = 40
+    player.y = 60
     player.gameScore = 0
     player.eaten = false
     player.spriteSheet = love.graphics.newImage('sprites/snake-SWEN.png')
@@ -29,6 +29,8 @@ function love.load()
     foodState.x = math.random(1, 500)
     foodState.y = math.random(1, 300)
     
+    sounds = {}
+    sounds.slurp  = love.audio.newSource('audio/slurp.wav', 'static')
 end
 
 function love.update(dt)
@@ -58,23 +60,24 @@ function love.update(dt)
 end
 
 function love.draw()
+    
     -- love.graphics.setColor (61 / 255, 168 / 255, 167 / 255)
     love.graphics.draw(background,0,0)
     player.anim:draw(player.spriteSheet,player.x,player.y,nil,nil,nil,15,15)
 
     dist = math.sqrt((player.x - foodState.x)^2 + (player.y - foodState.y)^2)
-    print(dist)
     if dist <= 10 then 
         player.gameScore = player.gameScore + 1
         foodState.x = math.random(1, 500)
         foodState.y = math.random(1, 300)
-
+        sounds.slurp:play()
     end
     love.graphics.print("Game Score:" ..  player.gameScore)  
 
     if not  player.eaten then
         love.graphics.draw (food,foodState.x,foodState.y,nil,nil,nil,40,28)
     end
+    love.graphics.rectangle("line",10,50,2,5)
 end
 
 
