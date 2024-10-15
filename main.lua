@@ -61,6 +61,7 @@ function love.load()
     _G.player = {}
     player.x = 10
     player.y = 10
+    player.gameScore = 0
     math.randomseed(os.time())
     player.goalx = math.random(1, 500)
     player.goaly = math.random(1, 300)
@@ -69,37 +70,53 @@ function love.load()
     player.grid =  anim8.newGrid(32,32,player.spriteSheet:getWidth(),player.spriteSheet:getHeight()) 
 
     player.animation = {}
-    player.animation.down = anim8.newAnimation(player.grid('1-3',1),  0.1)
-    player.animation.left = anim8.newAnimation(player.grid('1-3',2),  0.1)
-    player.animation.right = anim8.newAnimation(player.grid('1-3',3),  0.1)
-    player.animation.up = anim8.newAnimation(player.grid('1-3',4),  0.1)
+    player.animation.down = anim8.newAnimation(player.grid('1-3',1),0.1)
+    player.animation.left = anim8.newAnimation(player.grid('1-3',2),0.1)
+    player.animation.right = anim8.newAnimation(player.grid('1-3',3),0.1)
+    player.animation.up = anim8.newAnimation(player.grid('1-3',4),0.1)
 
     player.anim = player.animation.down
+
+    timer = 0
+    moveDelay = 0.2
 end
 
 function love.update(dt)
-    -- player.x = player.x + 4
+    isMoving = false
     if player.x >= player.goalx and  player.y >= player.goaly then
+        player.gameScore = player.gameScore + 1
         player.result = true
     end
 
     if love.keyboard.isDown("d","right") then
         player.x = player.x + 1
         player.anim = player.animation.right
+        isMoving = true
+        player.animation.right:update(dt)
     end
     if love.keyboard.isDown("a","left") then
         player.x = player.x - 1
         player.anim = player.animation.left
+        isMoving = true
+        player.animation.left:update(dt)
     end
         if love.keyboard.isDown("s","down") then
         player.y = player.y + 1
         player.anim = player.animation.down
+        isMoving = true
+        player.animation.down:update(dt)
     end
         if love.keyboard.isDown("w","up") then
         player.y = player.y - 1
         player.anim = player.animation.up
+        isMoving = true
+        player.animation.up:update(dt)
     end
-    player.animation.down:update(dt)
+    -- if isMoving == false then
+    --     player.animation.down:gotoFrame(2)
+    -- end
+
+
 end
 
 function love.draw()
@@ -119,6 +136,7 @@ function love.draw()
     -- love.graphics.setColor (0, 0, 0)
     love.graphics.print("YOU WINN!!!")  
     end
+
 end
 
 
