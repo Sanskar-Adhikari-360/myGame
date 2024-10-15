@@ -5,6 +5,8 @@ _G.love = require("love")
 function love.load()
     -- anim8 = require 'libaries/anim8.lua'
     local anim8 = require 'libaries/anim8'
+    local sti = require "libaries/sti"
+    gameMap = sti("maps/gameMap.lua")
 
     food = love.graphics.newImage('sprites/pixil-frame-0.png')
     background = love.graphics.newImage('sprites/background.png')
@@ -62,7 +64,8 @@ end
 function love.draw()
     
     -- love.graphics.setColor (61 / 255, 168 / 255, 167 / 255)
-    love.graphics.draw(background,0,0)
+    -- love.graphics.draw(background,0,0)
+    gameMap:draw()
     player.anim:draw(player.spriteSheet,player.x,player.y,nil,nil,nil,15,15)
 
     dist = math.sqrt((player.x - foodState.x)^2 + (player.y - foodState.y)^2)
@@ -77,7 +80,6 @@ function love.draw()
     if not  player.eaten then
         love.graphics.draw (food,foodState.x,foodState.y,nil,nil,nil,40,28)
     end
-    love.graphics.rectangle("line",10,50,2,5)
 end
 
 
