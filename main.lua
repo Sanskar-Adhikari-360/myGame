@@ -1,54 +1,4 @@
--- _G.love = require("love")
 
--- function love.load()
---     -- love.graphics.setBackgroundColor (181 / 255, 92 / 255, 157 / 255)
---     background = love.graphics.newImage('sprites/background.png')
---     _G.sally = {}
---     _G.sally.x = 10
---     _G.sally.y = 10
---     math.randomseed(os.time())
---     _G.sally.goalx = math.random(1, 500)
---     _G.sally.goaly = math.random(1, 300)
---     _G.sally.result = false
--- end
-
--- function love.update(dt)
---     -- sally.x = sally.x + 4
---     if sally.x >= sally.goalx then
---         sally.result = true
-        
---     end
-
---     if love.keyboard.isDown("d") then
---         sally.x = sally.x + 1
---     end
---     if love.keyboard.isDown("a") then
---         sally.x = sally.x - 1
---     end
---         if love.keyboard.isDown("s") then
---         sally.y = sally.y + 1
---     end
---         if love.keyboard.isDown("w") then
---         sally.y = sally.y - 1
---     end
--- end
-
--- function love.draw()
---     love.graphics.draw(background, 0,  0)
---     love.graphics.setColor (61 / 255, 168 / 255, 167 / 255)
---     love.graphics.rectangle("fill",sally.x,sally.y,50,50)
-
---     if not  sally.result then
---         love.graphics.setColor (0, 0, 0)
---         love.graphics.rectangle ("line", sally.goalx, sally.goaly, 40, 40)
-        
---     end
-
---     if sally.result then
---     love.graphics.setColor (0, 0, 0)
---     love.graphics.print("YOU WINN!!!")  
---     end
--- end
 
 _G.love = require("love")
 
@@ -62,10 +12,7 @@ function love.load()
     player.x = 10
     player.y = 10
     player.gameScore = 0
-    math.randomseed(os.time())
-    player.goalx = math.random(1, 500)
-    player.goaly = math.random(1, 300)
-    player.result = false
+    player.eaten = false
     player.spriteSheet = love.graphics.newImage('sprites/snake-SWEN.png')
     player.grid =  anim8.newGrid(32,32,player.spriteSheet:getWidth(),player.spriteSheet:getHeight()) 
 
@@ -77,44 +24,35 @@ function love.load()
 
     player.anim = player.animation.down
 
-    timer = 0
-    moveDelay = 0.2
+    foodState = {}
+    math.randomseed(os.time())
+    foodState.x = math.random(1, 500)
+    foodState.y = math.random(1, 300)
+    
 end
 
 function love.update(dt)
-    isMoving = false
-    if player.x >= player.goalx and  player.y >= player.goaly then
-        player.gameScore = player.gameScore + 1
-        player.result = true
-    end
 
     if love.keyboard.isDown("d","right") then
         player.x = player.x + 1
         player.anim = player.animation.right
-        isMoving = true
         player.animation.right:update(dt)
     end
     if love.keyboard.isDown("a","left") then
         player.x = player.x - 1
         player.anim = player.animation.left
-        isMoving = true
         player.animation.left:update(dt)
     end
         if love.keyboard.isDown("s","down") then
         player.y = player.y + 1
         player.anim = player.animation.down
-        isMoving = true
         player.animation.down:update(dt)
     end
         if love.keyboard.isDown("w","up") then
         player.y = player.y - 1
         player.anim = player.animation.up
-        isMoving = true
         player.animation.up:update(dt)
     end
-    -- if isMoving == false then
-    --     player.animation.down:gotoFrame(2)
-    -- end
 
 
 end
@@ -122,21 +60,21 @@ end
 function love.draw()
     -- love.graphics.setColor (61 / 255, 168 / 255, 167 / 255)
     love.graphics.draw(background,0,0)
-    -- love.graphics.rectangle("fill",player.x,player.y,50,50)
-    player.anim:draw(player.spriteSheet,player.x,player.y)
+    player.anim:draw(player.spriteSheet,player.x,player.y,nil,nil,nil,15,15)
 
-    if not  player.result then
-        love.graphics.draw (food,player.goalx,player.goaly)
-        -- love.graphics.setColor (0, 0, 0)
-        -- love.graphics.rectangle ("line", player.goalx, player.goaly, 40, 40)
-        
+    dist = math.sqrt((player.x - foodState.x)^2 + (player.y - foodState.y)^2)
+    print(dist)
+    if dist <= 10 then 
+        player.gameScore = player.gameScore + 1
+        foodState.x = math.random(1, 500)
+        foodState.y = math.random(1, 300)
+
     end
+    love.graphics.print("Game Score:" ..  player.gameScore)  
 
-    if player.result then
-    -- love.graphics.setColor (0, 0, 0)
-    love.graphics.print("YOU WINN!!!")  
+    if not  player.eaten then
+        love.graphics.draw (food,foodState.x,foodState.y,nil,nil,nil,40,28)
     end
-
 end
 
 
