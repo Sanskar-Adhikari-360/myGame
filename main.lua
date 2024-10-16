@@ -3,6 +3,7 @@
 _G.love = require("love")
 
 function love.load()
+    -- love.graphics.setDefaultFilter("nearest","nearest",1)
     -- anim8 = require 'libaries/anim8.lua'
     local anim8 = require 'libaries/anim8'
     local sti = require "libaries/sti"
@@ -47,7 +48,7 @@ end
 
 function love.update(dt)
 
-    if running and love.keyboard.isDown("d","right") then
+    if love.keyboard.isDown("d","right") then
         player.x = player.x + 1
         player.anim = player.animation.right
         player.animation.right:update(dt)
@@ -99,9 +100,10 @@ function love.draw()
         love.graphics.print("GAME OVER YOU DEER")
         sounds.gameOver:play()
     end
-    if menu then
+    if not menu then
         love.graphics.clear()
-        love.graphics.printf("Press Space to start",50,50,500,"center")
+        love.graphics.draw(background)
+        love.graphics.printf("Press Space to start",0,0,50,"center",0,1.5,1.5)
 
     end
 end
