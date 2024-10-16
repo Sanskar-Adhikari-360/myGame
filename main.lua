@@ -8,6 +8,9 @@ function love.load()
     local sti = require "libaries/sti"
     gameMap = sti("maps/gameMap.lua")
 
+
+    gameOver = false
+
     food = love.graphics.newImage('sprites/pixil-frame-0.png')
     background = love.graphics.newImage('sprites/background.png')
     _G.player = {}
@@ -33,11 +36,18 @@ function love.load()
     
     sounds = {}
     sounds.slurp  = love.audio.newSource('audio/slurp.wav', 'static')
+    sounds.gameOver = love.audio.newSource('audio/gameOver.wav', 'static')
+
+    state = {}
+    menu = true
+    paused = false
+    running = false
+    ended = false
 end
 
 function love.update(dt)
 
-    if love.keyboard.isDown("d","right") then
+    if running and love.keyboard.isDown("d","right") then
         player.x = player.x + 1
         player.anim = player.animation.right
         player.animation.right:update(dt)
@@ -79,6 +89,20 @@ function love.draw()
 
     if not  player.eaten then
         love.graphics.draw (food,foodState.x,foodState.y,nil,nil,nil,40,28)
+    end
+    -- print(player.x)
+    -- 565 and 25
+    -- print(player.y)
+    -- 360 and 25
+
+    if player.x > 565 or player.x < 25 or player.y >  360 or player.y < 25 then
+        love.graphics.print("GAME OVER YOU DEER")
+        sounds.gameOver:play()
+    end
+    if menu then
+        love.graphics.clear()
+        love.graphics.printf("Press Space to start",50,50,500,"center")
+
     end
 end
 
