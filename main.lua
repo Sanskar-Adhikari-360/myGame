@@ -12,6 +12,8 @@ local screen = {
 
 function love.load()
     love.graphics.setDefaultFilter("nearest","nearest")
+    font = love.graphics.newFont(18)
+    love.graphics.setFont(font)
 
     food = love.graphics.newImage('sprites/pixil-frame-0.png')
     background = love.graphics.newImage('sprites/background.png')
@@ -22,6 +24,7 @@ function love.load()
     player.eaten = false
     player.spriteSheet = love.graphics.newImage('sprites/snake-SWEN.png')
     player.grid = anim8.newGrid(32, 32, player.spriteSheet:getWidth(), player.spriteSheet:getHeight())
+    playerDirection = "down"
 
     player.animation = {}
     player.animation.down = anim8.newAnimation(player.grid('1-3', 1), 0.1)
@@ -54,26 +57,50 @@ end
 
 function love.update(dt)
 
-    if love.keyboard.isDown("d", "right") then
+    if running and love.keyboard.isDown("d", "right") then
         player.x = player.x + 1
         player.anim = player.animation.right
         player.animation.right:update(dt)
+        playerDirection = "right"
     end
-    if love.keyboard.isDown("a", "left") then
+    if running and love.keyboard.isDown("a", "left") then
         player.x = player.x - 1
         player.anim = player.animation.left
         player.animation.left:update(dt)
+        playerDirection = "left"
     end
-    if love.keyboard.isDown("s", "down") then
+    if running and love.keyboard.isDown("s", "down") then
         player.y = player.y + 1
         player.anim = player.animation.down
         player.animation.down:update(dt)
+        playerDirection = "down"
     end
-    if love.keyboard.isDown("w", "up") then
+    if running and love.keyboard.isDown("w", "up") then
         player.y = player.y - 1
         player.anim = player.animation.up
         player.animation.up:update(dt)
+        playerDirection = "up"
     end
+    if running and playerDirection == "right" then
+        player.x = player.x + 1
+    end
+    if running and playerDirection == "left" then
+        player.x = player.x - 1
+    end
+    if running and playerDirection == "down" then
+        player.y = player.y + 1
+    end
+    if running and playerDirection == "up" then
+        player.y = player.y - 1
+    end
+    if running and love.keyboard.isDown("space") then
+        running = false
+        paused = true
+    elseif paused and love.keyboard.isDown("space") then
+        paused  = false
+        running = true
+    end
+
     
     bman.update(dt)
     function love.mousepressed(x, y, msbutton, istouch, presses)
@@ -89,8 +116,6 @@ end
 
 
 function love.draw()
-    -- love.graphics.setColor (61 / 255, 168 / 255, 167 / 255)
-    -- love.graphics.draw(background,0,0)
     bman.draw()
     gameMap:draw()
     player.anim:draw(player.spriteSheet, player.x, player.y, nil, nil, nil, 15, 15)
@@ -107,24 +132,28 @@ function love.draw()
     if not player.eaten then
         love.graphics.draw(food, foodState.x, foodState.y, nil, nil, nil, 40, 28)
     end
-    -- print(player.x)
-    -- 565 and 25
-    -- print(player.y)
-    -- 360 and 25
-
+    
+    if paused then
+        love.graphics.print("Game Paused", 200, 200)
+    end
+    
     if player.x > 565 or player.x < 25 or player.y > 360 or player.y < 25 then
         love.graphics.clear()
+        running = false
+        ended = true
         love.graphics.print("GAME OVER YOU DEER")
         sounds.gameOver:play()
     end
     if menu then
-        love.graphics.clear()
         love.graphics.draw(background)
-        font = love.graphics.newFont(18)
-        love.graphics.setFont(font)
         local startButton = bman.new("Start Game", screen.w / 2 - 50, screen.h / 2 - 50)
+        local exitButton = bman.new("Exit", screen.w / 2 - 50, screen.h / 2 - 50 + 50)
         startButton.onClick = function()
-        menu = false    
+        menu = false
+        running = true    
+        end
+        exitButton.onClick = function()
+            love.event.quit()
         end
         bman.draw()
     end
