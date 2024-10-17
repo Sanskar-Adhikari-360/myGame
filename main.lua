@@ -36,8 +36,9 @@ function love.load()
 
     foodState = {}
     math.randomseed(os.time())
-    foodState.x = math.random(1, 500)
-    foodState.y = math.random(1, 300)
+    foodState.x = math.random(35, screen.w - 35)
+    foodState.y = math.random(35, screen.h - 35)
+    
 
     sounds = {}
     sounds.slurp = love.audio.newSource('audio/slurp.wav', 'static')
@@ -123,8 +124,8 @@ function love.draw()
     dist = math.sqrt((player.x - foodState.x) ^ 2 + (player.y - foodState.y) ^ 2)
     if dist <= 10 then
         player.gameScore = player.gameScore + 1
-        foodState.x = math.random(1, 500)
-        foodState.y = math.random(1, 300)
+        foodState.x = math.random(35, screen.w - 35)
+        foodState.y = math.random(35, screen.h - 35)
         sounds.slurp:play()
     end
     love.graphics.print("Game Score:" .. player.gameScore)
