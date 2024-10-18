@@ -2,7 +2,6 @@ _G.love = require("love")
 local bman = require 'simplebutton'
 local anim8 = require 'libaries/anim8'
 local sti = require "libaries/sti"
-local butt = require "libaries/butt/butt"
 local bman = require 'simplebutton'
 gameMap = sti("maps/gameMap.lua")
 local screen = {
@@ -25,6 +24,7 @@ function love.load()
     player.spriteSheet = love.graphics.newImage('sprites/snake-SWEN.png')
     player.grid = anim8.newGrid(32, 32, player.spriteSheet:getWidth(), player.spriteSheet:getHeight())
     playerDirection = "down"
+    player.speed = 0
 
     player.animation = {}
     player.animation.down = anim8.newAnimation(player.grid('1-3', 1), 0.1)
@@ -59,40 +59,48 @@ end
 function love.update(dt)
 
     if running and love.keyboard.isDown("d", "right") then
-        player.x = player.x + 1
+        player.x = player.x + 1 + player.speed
         player.anim = player.animation.right
         player.animation.right:update(dt)
         playerDirection = "right"
     end
     if running and love.keyboard.isDown("a", "left") then
-        player.x = player.x - 1
+        player.x = player.x - 1 - player.speed
         player.anim = player.animation.left
         player.animation.left:update(dt)
         playerDirection = "left"
     end
     if running and love.keyboard.isDown("s", "down") then
-        player.y = player.y + 1
+        player.y = player.y + 1 + player.speed
         player.anim = player.animation.down
         player.animation.down:update(dt)
         playerDirection = "down"
     end
     if running and love.keyboard.isDown("w", "up") then
-        player.y = player.y - 1
+        player.y = player.y - 1 - player.speed
         player.anim = player.animation.up
         player.animation.up:update(dt)
         playerDirection = "up"
     end
     if running and playerDirection == "right" then
-        player.x = player.x + 1
+        player.x = player.x + 1 + player.speed
+        player.anim = player.animation.right
+        player.animation.right:update(dt)
     end
     if running and playerDirection == "left" then
-        player.x = player.x - 1
+        player.x = player.x - 1 - player.speed
+        player.anim = player.animation.left
+        player.animation.left:update(dt)
     end
     if running and playerDirection == "down" then
-        player.y = player.y + 1
+        player.y = player.y + 1 + player.speed
+        player.anim = player.animation.down
+        player.animation.down:update(dt)
     end
     if running and playerDirection == "up" then
-        player.y = player.y - 1
+        player.y = player.y - 1 - player.speed
+        player.anim = player.animation.up
+        player.animation.up:update(dt)
     end
     if running and love.keyboard.isDown("space") then
         running = false
@@ -113,6 +121,22 @@ function love.mousereleased(x, y, msbutton, istouch, presses)
 
 end
 
+    if player.gameScore >= 5 then
+        player.speed = 0.2
+    end
+    if player.gameScore  >= 10 then
+        player.speed = 0.3
+    end
+    if player.gameScore  >= 15 then
+        player.speed = 0.4
+    end
+    if player.gameScore >=  20 then
+        player.speed = 0.5
+    end
+    if player.gameScore  >= 25 then
+            player.speed  = 0.6
+    end
+
 end
 
 
@@ -128,7 +152,7 @@ function love.draw()
         foodState.y = math.random(35, screen.h - 35)
         sounds.slurp:play()
     end
-    love.graphics.print("Game Score:" .. player.gameScore)
+    love.graphics.print("Game Score:" .. player.gameScore,15,15)
 
     if not player.eaten then
         love.graphics.draw(food, foodState.x, foodState.y, nil, nil, nil, 40, 28)
@@ -139,10 +163,9 @@ function love.draw()
     end
     
     if player.x > 565 or player.x < 25 or player.y > 360 or player.y < 25 then
-        love.graphics.clear()
         running = false
         ended = true
-        love.graphics.print("GAME OVER YOU DEER")
+        love.graphics.printf("GAME OVER YOU DEER",50,50,500,"center")
         sounds.gameOver:play()
     end
     if menu then
