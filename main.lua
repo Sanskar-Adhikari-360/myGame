@@ -3,6 +3,7 @@ local bman = require 'simplebutton'
 local anim8 = require 'libaries/anim8'
 local sti = require "libaries/sti"
 local bman = require 'simplebutton'
+local Moan = require('libaries/Moan')
 gameMap = sti("maps/gameMap.lua")
 local screen = {
     w = love.graphics.getWidth(),
@@ -134,7 +135,7 @@ end
         player.speed = 0.5
     end
     if player.gameScore  >= 25 then
-            player.speed  = 0.6
+        player.speed  = 0.6
     end
 
 end
@@ -165,8 +166,9 @@ function love.draw()
     if player.x > 565 or player.x < 25 or player.y > 360 or player.y < 25 then
         running = false
         ended = true
-        love.graphics.printf("GAME OVER YOU DEER",50,50,500,"center")
-        sounds.gameOver:play()
+        if not running and ended then
+           gameoverOverlay("fill",50,50,screen.w-100,screen.h-100)
+        end
     end
     if menu then
         love.graphics.draw(background)
@@ -183,3 +185,11 @@ function love.draw()
     end
 end
 
+function gameoverOverlay(mode,x,y,width,height)
+    
+    gameMap:draw()
+    love.graphics.setColor(0.5,0.5,0.5,0.5)
+    love.graphics.rectangle(mode,x,y,width,height)
+    love.graphics.setColor(1,1,1)
+    love.graphics.print("GAME OVER!!",x+width*0.5,y)
+end
