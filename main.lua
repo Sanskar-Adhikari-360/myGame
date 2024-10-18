@@ -166,10 +166,11 @@ function love.draw()
     if player.x > 565 or player.x < 25 or player.y > 360 or player.y < 25 then
         running = false
         ended = true
-        if not running and ended then
-           gameoverOverlay("fill",50,50,screen.w-100,screen.h-100)
-        end
+
     end
+    if not running and ended then
+        gameoverOverlay("fill",50,50,screen.w-100,screen.h-100,{0.5,0.5,0.5,0.5})
+     end
     if menu then
         love.graphics.draw(background)
         local startButton = bman.new("Start Game", screen.w / 2 - 50, screen.h / 2 - 50)
@@ -181,15 +182,34 @@ function love.draw()
         exitButton.onClick = function()
             love.event.quit()
         end
-        bman.draw()
+        bman.draw(startButton)
+        bman.draw(exitButton)
     end
 end
 
-function gameoverOverlay(mode,x,y,width,height)
+function gameoverOverlay(mode,x,y,width,height,bodyColor)
     
     gameMap:draw()
-    love.graphics.setColor(0.5,0.5,0.5,0.5)
+    love.graphics.setColor(bodyColor)
     love.graphics.rectangle(mode,x,y,width,height)
     love.graphics.setColor(1,1,1)
-    love.graphics.print("GAME OVER!!",x+width*0.5,y)
+    love.graphics.print("GAME OVER!!",x+width*0.4,y+height*0.4)
+    love.graphics.print(("YOUR SCORE WAS: " .. player.gameScore),x+width*0.35,y+height*0.4 + 40)
+    love.graphics.print("DO YOU WISH TO TRY AGAIN?",x+width - 360,y+height*0.4 + 80)
+    local gameoverOverlayYesButton = bman.new("YES",  x+width*0.2, y+height*0.8)
+    local gameoverOverlayNoButton = bman.new("NO", x+width*0.6, y+height*0.8)
+    bman.draw(gameoverOverlayYesButton)
+    bman.draw(gameoverOverlayNoButton)
+    gameoverOverlayNoButton.onClick = function()
+    ended  = false
+    menu = true
+    end
+    gameoverOverlayYesButton.onClick = function()
+        player.x = 40  
+        player.y = 60
+        player.gameScore = 0
+        playerDirection = "down"
+        ended = false
+        running = true
+    end
 end
