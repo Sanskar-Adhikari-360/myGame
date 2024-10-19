@@ -2,9 +2,11 @@ _G.love = require("love")
 local bman = require 'simplebutton'
 local anim8 = require 'libaries/anim8'
 local sti = require "libaries/sti"
-local bman = require 'simplebutton'
+local bman = require ('simplebutton')
 local Moan = require('libaries/Moan')
-gameMap = sti("maps/gameMap.lua")
+local camera = require("libaries/camera")
+local cam = camera()
+gameMap = sti("maps/testMap.lua")
 local screen = {
     w = love.graphics.getWidth(),
     h = love.graphics.getHeight()
@@ -138,14 +140,18 @@ end
         player.speed  = 0.6
     end
 
+    cam:lookAt(player.x,player.y)
 end
 
 
 function love.draw()
+    cam:attach()
+        gameMap:drawLayer(gameMap.layers["Grass"])
+        gameMap:drawLayer(gameMap.layers["Trees"])
+        gameMap:drawLayer(gameMap.layers["More tress"])
+        player.anim:draw(player.spriteSheet, player.x, player.y, nil, nil, nil, 15, 15)
+    cam:detach()
     bman.draw()
-    gameMap:draw()
-    player.anim:draw(player.spriteSheet, player.x, player.y, nil, nil, nil, 15, 15)
-
     dist = math.sqrt((player.x - foodState.x) ^ 2 + (player.y - foodState.y) ^ 2)
     if dist <= 10 then
         player.gameScore = player.gameScore + 1
@@ -164,18 +170,20 @@ function love.draw()
     end
     
     if player.x > 565 or player.x < 25 or player.y > 360 or player.y < 25 then
-        running = false
-        ended = true
+        running = true
+        ended = false
 
     end
     if not running and ended then
         gameoverOverlay("fill",50,50,screen.w-100,screen.h-100,{0.5,0.5,0.5,0.5})
-     end
+    end
+
     if menu then
         love.graphics.draw(background)
         local startButton = bman.new("Start Game", screen.w / 2 - 50, screen.h / 2 - 50)
         local exitButton = bman.new("Exit", screen.w / 2 - 50, screen.h / 2 - 50 + 50)
         startButton.onClick = function()
+        love.graphics.clear()
         menu = false
         running = true    
         end
@@ -189,13 +197,15 @@ end
 
 function gameoverOverlay(mode,x,y,width,height,bodyColor)
     
-    gameMap:draw()
+    gameMap:drawLayer(gameMap.layers["Grass"])
+    gameMap:drawLayer(gameMap.layers["Trees"])
+    gameMap:drawLayer(gameMap.layers["More tress"])
     love.graphics.setColor(bodyColor)
     love.graphics.rectangle(mode,x,y,width,height)
     love.graphics.setColor(1,1,1)
     love.graphics.print("GAME OVER!!",x+width*0.4,y+height*0.4)
     love.graphics.print(("YOUR SCORE WAS: " .. player.gameScore),x+width*0.35,y+height*0.4 + 40)
-    love.graphics.print("DO YOU WISH TO TRY AGAIN?",x+width - 360,y+height*0.4 + 80)
+    love.graphics.print("DO YOU WISH TO TRY AGAIN?",x+width*0.3,y+height*0.4 + 80)
     local gameoverOverlayYesButton = bman.new("YES",  x+width*0.2, y+height*0.8)
     local gameoverOverlayNoButton = bman.new("NO", x+width*0.6, y+height*0.8)
     bman.draw(gameoverOverlayYesButton)

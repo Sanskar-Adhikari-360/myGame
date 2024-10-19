@@ -6,9 +6,9 @@ function love.conf(c)
     c.gammacorrect =  true
     c.audio.mic = false
     c.window.title ="FUN GAME"
-    c.window.height = 396
-    c.window.width = 594
-    c.resizeable = false
-    c.window.minheight = 200
-    c.window.minwidth = 300
+    -- c.window.height = 396
+    -- c.window.width = 594
+    -- c.resizeable = false
+    -- c.window.minheight = 200
+    -- c.window.minwidth = 300
 end
