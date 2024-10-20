@@ -6,6 +6,7 @@ local bman = require ('simplebutton')
 local Moan = require('libaries/Moan')
 local camera = require("libaries/camera")
 local cam = camera()
+local wf = require ('libaries/windfield')
 gameMap = sti("maps/testMap.lua")
 local screen = {
     w = love.graphics.getWidth(),
@@ -13,6 +14,7 @@ local screen = {
 }
 
 function love.load()
+    world = wf.newWorld(0,0)
     love.graphics.setDefaultFilter("nearest","nearest")
     font = love.graphics.newFont(18)
     love.graphics.setFont(font)
@@ -20,6 +22,7 @@ function love.load()
     food = love.graphics.newImage('sprites/pixil-frame-0.png')
     background = love.graphics.newImage('sprites/background.png')
     _G.player = {}
+    player.collider =  world:newRectangleCollider(40,60,32,32)
     player.x = 40
     player.y = 60
     player.gameScore = 0
@@ -27,7 +30,7 @@ function love.load()
     player.spriteSheet = love.graphics.newImage('sprites/snake-SWEN.png')
     player.grid = anim8.newGrid(32, 32, player.spriteSheet:getWidth(), player.spriteSheet:getHeight())
     playerDirection = "right"
-    player.speed = 0
+    player.speed = 300
 
     player.animation = {}
     player.animation.down = anim8.newAnimation(player.grid('1-3', 1), 0.1)
@@ -36,6 +39,15 @@ function love.load()
     player.animation.up = anim8.newAnimation(player.grid('1-3', 4), 0.1)
 
     player.anim = player.animation.right
+
+    walls = {}
+    if gameMap.layers["DNIobject"] then
+        for i, obj in ipairs(gameMap.layers["DNIobject"].objects) do
+            local wall = world:newRectangleCollider(obj.x,obj.y,obj.width,obj.height)
+            wall:setType('static')
+            table.insert(walls, wall)
+        end                                
+    end
 
     foodState = {}
     math.randomseed(os.time())
@@ -61,57 +73,63 @@ end
 
 function love.update(dt)
 
+    local vx = 0
+    local vy = 0
     if not paused and running and love.keyboard.isDown("d", "right") then
-        player.x = player.x + 1 + player.speed
+        vx = player.speed 
         player.anim = player.animation.right
         player.animation.right:update(dt)
         playerDirection = "right"
     end
     if not paused and running and love.keyboard.isDown("a", "left") then
-        player.x = player.x - 1 - player.speed
+        vx = player.speed*-1
         player.anim = player.animation.left
         player.animation.left:update(dt)
         playerDirection = "left"
     end
     if not paused and running and love.keyboard.isDown("s", "down") then
-        player.y = player.y + 1 + player.speed
+       vy = player.speed
         player.anim = player.animation.down
         player.animation.down:update(dt)
         playerDirection = "down"
     end
     if not paused and running and love.keyboard.isDown("w", "up") then
-        player.y = player.y - 1 - player.speed
+        vy = player.speed*-1
         player.anim = player.animation.up
         player.animation.up:update(dt)
         playerDirection = "up"
     end
-    if not paused and running and playerDirection == "right" then
-        player.x = player.x + 1 + player.speed
-        player.anim = player.animation.right
-        player.animation.right:update(dt)
-    end
-    if not paused and running and playerDirection == "left" then
-        player.x = player.x - 1 - player.speed
-        player.anim = player.animation.left
-        player.animation.left:update(dt)
-    end
-    if not paused and running and playerDirection == "down" then
-        player.y = player.y + 1 + player.speed
-        player.anim = player.animation.down
-        player.animation.down:update(dt)
-    end
-    if not paused and running and playerDirection == "up" then
-        player.y = player.y - 1 - player.speed
-        player.anim = player.animation.up
-        player.animation.up:update(dt)
-    end
-    if not paused and  running and love.keyboard.isDown("space") then
-        running = false
-        paused = true
-    elseif paused and love.keyboard.isDown("space") then
-        paused  = false
-        running = true
-    end
+
+    player.collider:setLinearVelocity(vx,vy)
+    
+    -- if not paused and running and playerDirection == "right" then
+    --     player.x = player.x + 1 + player.speed
+    --     player.anim = player.animation.right
+    --     player.animation.right:update(dt)
+    -- end
+    -- if not paused and running and playerDirection == "left" then
+    --     player.x = player.x - 1 - player.speed
+    --     player.anim = player.animation.left
+    --     player.animation.left:update(dt)
+    -- end
+    -- if not paused and running and playerDirection == "down" then
+    --     player.y = player.y + 1 + player.speed
+    --     player.anim = player.animation.down
+    --     player.animation.down:update(dt)
+    -- end
+    -- if not paused and running and playerDirection == "up" then
+    --     player.y = player.y - 1 - player.speed
+    --     player.anim = player.animation.up
+    --     player.animation.up:update(dt)
+    -- end
+    -- if not paused and  running and love.keyboard.isDown("space") then
+    --     running = false
+    --     paused = true
+    -- elseif paused and love.keyboard.isDown("space") then
+    --     paused  = false
+    --     running = true
+    -- end
+
 
     
     bman.update(dt)
@@ -124,21 +142,21 @@ function love.mousereleased(x, y, msbutton, istouch, presses)
 
 end
 
-    if player.gameScore >= 5 then
-        player.speed = 0.2
-    end
-    if player.gameScore  >= 10 then
-        player.speed = 0.3
-    end
-    if player.gameScore  >= 15 then
-        player.speed = 0.4
-    end
-    if player.gameScore >=  20 then
-        player.speed = 0.5
-    end
-    if player.gameScore  >= 25 then
-        player.speed  = 0.6
-    end
+    -- if player.gameScore >= 5 then
+    --     player.speed = player.speed*0.2
+    -- end
+    -- if player.gameScore  >= 10 then
+    --     player.speed = player.speed*0.3
+    -- end
+    -- if player.gameScore  >= 15 then
+    --     player.speed = player.speed*0.4
+    -- end
+    -- if player.gameScore >=  20 then
+    --     player.speed = player.speed*0.5
+    -- end
+    -- if player.gameScore  >= 25 then
+    --     player.speed  = player.speed*0.6
+    -- end
     cam:lookAt(player.x,player.y)
     if cam.x < screen.w/2 then
         cam.x = screen.w/2
@@ -157,6 +175,9 @@ end
         if cam.y >  (mapH - screen.h/2) then
             cam.y  = (mapH - screen.h/2)
             end
+    world:update(dt)
+    player.x = player.collider:getX()
+    player.y = player.collider:getY()
 end
 
 
@@ -169,6 +190,7 @@ function love.draw()
         if not player.eaten then
             love.graphics.draw(food, foodState.x, foodState.y, nil, nil, nil, 40, 28)
         end
+        world:draw()
     cam:detach()
     dist = math.sqrt((player.x - foodState.x) ^ 2 + (player.y - foodState.y) ^ 2)
     if dist <= 10 then
