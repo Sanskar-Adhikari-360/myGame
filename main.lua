@@ -26,7 +26,7 @@ function love.load()
     player.eaten = false
     player.spriteSheet = love.graphics.newImage('sprites/snake-SWEN.png')
     player.grid = anim8.newGrid(32, 32, player.spriteSheet:getWidth(), player.spriteSheet:getHeight())
-    playerDirection = "down"
+    playerDirection = "right"
     player.speed = 0
 
     player.animation = {}
@@ -35,7 +35,7 @@ function love.load()
     player.animation.right = anim8.newAnimation(player.grid('1-3', 3), 0.1)
     player.animation.up = anim8.newAnimation(player.grid('1-3', 4), 0.1)
 
-    player.anim = player.animation.down
+    player.anim = player.animation.right
 
     foodState = {}
     math.randomseed(os.time())
@@ -61,51 +61,51 @@ end
 
 function love.update(dt)
 
-    if running and love.keyboard.isDown("d", "right") then
+    if not paused and running and love.keyboard.isDown("d", "right") then
         player.x = player.x + 1 + player.speed
         player.anim = player.animation.right
         player.animation.right:update(dt)
         playerDirection = "right"
     end
-    if running and love.keyboard.isDown("a", "left") then
+    if not paused and running and love.keyboard.isDown("a", "left") then
         player.x = player.x - 1 - player.speed
         player.anim = player.animation.left
         player.animation.left:update(dt)
         playerDirection = "left"
     end
-    if running and love.keyboard.isDown("s", "down") then
+    if not paused and running and love.keyboard.isDown("s", "down") then
         player.y = player.y + 1 + player.speed
         player.anim = player.animation.down
         player.animation.down:update(dt)
         playerDirection = "down"
     end
-    if running and love.keyboard.isDown("w", "up") then
+    if not paused and running and love.keyboard.isDown("w", "up") then
         player.y = player.y - 1 - player.speed
         player.anim = player.animation.up
         player.animation.up:update(dt)
         playerDirection = "up"
     end
-    if running and playerDirection == "right" then
+    if not paused and running and playerDirection == "right" then
         player.x = player.x + 1 + player.speed
         player.anim = player.animation.right
         player.animation.right:update(dt)
     end
-    if running and playerDirection == "left" then
+    if not paused and running and playerDirection == "left" then
         player.x = player.x - 1 - player.speed
         player.anim = player.animation.left
         player.animation.left:update(dt)
     end
-    if running and playerDirection == "down" then
+    if not paused and running and playerDirection == "down" then
         player.y = player.y + 1 + player.speed
         player.anim = player.animation.down
         player.animation.down:update(dt)
     end
-    if running and playerDirection == "up" then
+    if not paused and running and playerDirection == "up" then
         player.y = player.y - 1 - player.speed
         player.anim = player.animation.up
         player.animation.up:update(dt)
     end
-    if running and love.keyboard.isDown("space") then
+    if not paused and  running and love.keyboard.isDown("space") then
         running = false
         paused = true
     elseif paused and love.keyboard.isDown("space") then
@@ -139,8 +139,24 @@ end
     if player.gameScore  >= 25 then
         player.speed  = 0.6
     end
-
     cam:lookAt(player.x,player.y)
+    if cam.x < screen.w/2 then
+        cam.x = screen.w/2
+    end 
+    if cam.y < screen.h/2 then
+        cam.y = screen.h/2
+    end
+    local mapW = gameMap.width*gameMap.tilewidth 
+    local mapH = gameMap.height*gameMap.tileheight
+
+    -- RIght border of the map
+    if cam.x >  (mapW - screen.w/2) then
+    cam.x  = (mapW - screen.w/2)
+    end
+        -- Left border of the map
+        if cam.y >  (mapH - screen.h/2) then
+            cam.y  = (mapH - screen.h/2)
+            end
 end
 
 
@@ -150,8 +166,10 @@ function love.draw()
         gameMap:drawLayer(gameMap.layers["Trees"])
         gameMap:drawLayer(gameMap.layers["More tress"])
         player.anim:draw(player.spriteSheet, player.x, player.y, nil, nil, nil, 15, 15)
+        if not player.eaten then
+            love.graphics.draw(food, foodState.x, foodState.y, nil, nil, nil, 40, 28)
+        end
     cam:detach()
-    bman.draw()
     dist = math.sqrt((player.x - foodState.x) ^ 2 + (player.y - foodState.y) ^ 2)
     if dist <= 10 then
         player.gameScore = player.gameScore + 1
@@ -161,10 +179,9 @@ function love.draw()
     end
     love.graphics.print("Game Score:" .. player.gameScore,15,15)
 
-    if not player.eaten then
-        love.graphics.draw(food, foodState.x, foodState.y, nil, nil, nil, 40, 28)
-    end
-    
+    -- if not player.eaten then
+    --     love.graphics.draw(food, foodState.x, foodState.y, nil, nil, nil, 40, 28)
+    -- end
     if paused then
         love.graphics.print("Game Paused", 200, 200)
     end
@@ -195,11 +212,8 @@ function love.draw()
     end
 end
 
+
 function gameoverOverlay(mode,x,y,width,height,bodyColor)
-    
-    gameMap:drawLayer(gameMap.layers["Grass"])
-    gameMap:drawLayer(gameMap.layers["Trees"])
-    gameMap:drawLayer(gameMap.layers["More tress"])
     love.graphics.setColor(bodyColor)
     love.graphics.rectangle(mode,x,y,width,height)
     love.graphics.setColor(1,1,1)
