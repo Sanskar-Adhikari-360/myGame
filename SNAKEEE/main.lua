@@ -15,6 +15,8 @@ local screen = {
 
 function love.load()
     world = wf.newWorld(0,0)
+    world:addCollisionClass('Player')
+    world:addCollisionClass('Wall')
     love.graphics.setDefaultFilter("nearest","nearest")
     font = love.graphics.newFont(18)
     love.graphics.setFont(font)
@@ -23,6 +25,7 @@ function love.load()
     background = love.graphics.newImage('sprites/background.png')
     _G.player = {}
     player.collider =  world:newRectangleCollider(410,65,12,12)
+    player.collider:setCollisionClass('Player')
     player.x = 40
     player.y = 60
     player.gameScore = 0
@@ -45,9 +48,10 @@ function love.load()
         for i, obj in ipairs(gameMap.layers["DNIobject"].objects) do
             local wall = world:newRectangleCollider(obj.x,obj.y,obj.width,obj.height)
             wall:setType('static')
+            wall:setCollisionClass('Wall')
             table.insert(walls, wall)
             if obj.x then
-                love.graphics.print(obj.x)
+               print(obj.x)
             end        
         end
     end
@@ -186,6 +190,11 @@ end
     world:update(dt)
     player.x = player.collider:getX()
     player.y = player.collider:getY()
+
+    if player.collider:enter('Wall') then
+        running = false
+        ended = true
+    end
 end
 
 
