@@ -22,7 +22,7 @@ function love.load()
     food = love.graphics.newImage('sprites/pixil-frame-0.png')
     background = love.graphics.newImage('sprites/background.png')
     _G.player = {}
-    player.collider =  world:newRectangleCollider(40,60,32,32)
+    player.collider =  world:newRectangleCollider(410,65,12,12)
     player.x = 40
     player.y = 60
     player.gameScore = 0
@@ -46,13 +46,16 @@ function love.load()
             local wall = world:newRectangleCollider(obj.x,obj.y,obj.width,obj.height)
             wall:setType('static')
             table.insert(walls, wall)
-        end                                
+            if obj.x then
+                love.graphics.print(obj.x)
+            end        
+        end
     end
 
     foodState = {}
     math.randomseed(os.time())
-    foodState.x = math.random(35, screen.w - 35)
-    foodState.y = math.random(35, screen.h - 35)
+    foodState.x = math.random(600, 1430)
+    foodState.y = math.random(0,875)
     
 
     sounds = {}
@@ -72,6 +75,11 @@ function love.load()
 end
 
 function love.update(dt)
+
+    if player.collider:enter('wall') then
+        player.collider:applyLinearImpulse(1000, 0)
+        player.collider:applyAngularImpulse(5000)
+    end
 
     local vx = 0
     local vy = 0
@@ -195,10 +203,11 @@ function love.draw()
     dist = math.sqrt((player.x - foodState.x) ^ 2 + (player.y - foodState.y) ^ 2)
     if dist <= 10 then
         player.gameScore = player.gameScore + 1
-        foodState.x = math.random(35, screen.w - 35)
-        foodState.y = math.random(35, screen.h - 35)
+        foodState.x = math.random(600, 1430)
+        foodState.y = math.random(0,875)
         sounds.slurp:play()
     end
+    print("X is: " .. player.x .. "Y is: " .. player.y)
     love.graphics.print("Game Score:" .. player.gameScore,15,15)
 
     -- if not player.eaten then
@@ -232,6 +241,7 @@ function love.draw()
         bman.draw(startButton)
         bman.draw(exitButton)
     end
+
 end
 
 
