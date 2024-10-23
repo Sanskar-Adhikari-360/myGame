@@ -7,7 +7,7 @@ function love.load()
         h = love.graphics.getHeight()
     }
 
-    world = wf.newWorld(0,0)
+    world = wf.newWorld(0,250)
     
     -- player = {}
     -- 
@@ -26,7 +26,7 @@ function love.load()
     BACKGROUND_SCROLL_SPEED = 30
     GROUND_SCROLL_SPEED = 60
     BACKGROUND_LOOPING_POINT = screen.w/6.5
-    -- box = world:newRectangleCollider(player.x,player.y,35,35)
+    box = world:newRectangleCollider(bird.x,bird.y,35,35)
 end
 function love.update(dt)
     -- player.x =  box:getX()
@@ -38,8 +38,8 @@ function love.update(dt)
     end
 
     -- box:setLinearVelocity(vx,vy)
-    -- player.x = box:getX()
-    -- player.y = box:getY()
+    bird.x = box:getX()
+    bird.y = box:getY()
     world:update(dt)
 
     backgroundScroll = (backgroundScroll + BACKGROUND_SCROLL_SPEED * dt)
@@ -54,8 +54,8 @@ function love.draw()
     birdRender()
     world:draw()
 end
--- function love.keypressed(key)
---     if key == 'space' then
---       box:applyLinearImpulse(0, -1000)
---     end
---   end
+function love.keypressed(key)
+    if key == 'space' then
+      box:applyLinearImpulse(0, -1000)
+    end
+  end

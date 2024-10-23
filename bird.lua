@@ -11,5 +11,5 @@ bird.x = screen.w/4
 bird.y = screen.h/2
 
 function birdRender()
-    love.graphics.draw(bird.image,bird.x,bird.y)
+    love.graphics.draw(bird.image,bird.x,bird.y,nil,nil,nil,16,16)
 end
