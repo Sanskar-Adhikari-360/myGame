@@ -1,6 +1,14 @@
-function love.conf(t)
-    t.window.title ="FUN GAME"
-    t.window.height = 288
-    t.window.width = 1000
-    t.resizeable = true
+function love.conf(c)
+    c.identity = "data/saves"
+    c.version  = "11.5"
+    c.console = true
+    c.externalstorage = true
+    c.gammacorrect =  true
+    c.audio.mic = false
+    c.window.title ="FUN GAME"
+    -- c.window.height = 396
+    -- c.window.width = 594
+    -- c.resizeable = false
+    -- c.window.minheight = 200
+    -- c.window.minwidth = 300
 end
